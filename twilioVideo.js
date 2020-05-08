@@ -13,7 +13,7 @@
   const TWILIO_DOMAIN = 'xxxxxxxxx-xxxxx-xxxx.twil.io'; // xxxxxxx-xxxxxxx-xxxx.twil.io
 
   let eventId, roomName, videoRoom, localStream;
-  
+
   /**
    * 画面文言の言語設定
    */
@@ -56,45 +56,18 @@
   });
 
   /**
-   * 予定の詳細画面の表に挿入する行テンプレートを作成する
+   * 予定の詳細画面の表に挿入する行の内容を作成する
    * @return {Object} 行テンプレート
    */
   const createTwilioVideoInfoTemplate = (() => {
     let self = {};
 
-    let row = document.createElement('tr');
-    row.innerHTML = '' +
-      '<th id="twilio-video-title"></th>' +
-      '<td id="twilio-video-content">' +
-      '    <video id="my-stream" height="240px" autoplay muted></video>' +
-      '    <button id="twilio-video-btn" class="button_normal_sub_grn_kit"></button>' +
-      '</td>';
-    self.el = row;
-
-    // ボタンの動作
-    const btn = self.el.querySelector('#twilio-video-btn');
-    btn.onclick = (() => {
-      if (btn.innerHTML.indexOf('参加') !== -1) {
-        console.log(`Joining...`);
-        btn.innerHTML = `退出`;
-        joinConference(); 
-      } else {
-        console.log(`Leaving.`);
-        btn.innerHTML = `参加`;
-        leaveConference();
-      }
-    });
-
-    // プレビュー画面の表示
-    navigator.mediaDevices.getUserMedia({video: true, audio: true})
-    .then(stream => {
-      self.el.querySelector('#my-stream').srcObject = stream;
-      localStream = stream;
-    })
-    .catch(error => {
-      console.error(`mediaDevice.getUserMedia() error: ${error}`);
-      return;
-    });
+    const videoContent = document.createElement('div');
+    videoContent.id = 'twilio-video-content';
+    videoContent.innerHTML = '' +
+      '<video id="my-stream" height="240px" autoplay muted></video>' +
+      '<button id="twilio-video-btn" class="button_normal_sub_grn_kit"></button>';
+    self.el = videoContent;
 
     self.setTextContent = ((elementId, value) => {
       self.el.querySelector('#' + elementId).textContent = value;
@@ -198,29 +171,35 @@
     const localization = getLocalization();
     const twilioVideoInfoTemplate = createTwilioVideoInfoTemplate();
 
-    twilioVideoInfoTemplate.setTextContent('twilio-video-title', localization.TWILIO_VIDEO_MEETING);
+    // ボタンラベルの文言
     twilioVideoInfoTemplate.setTextContent('twilio-video-btn', localization.TWILIO_VIDEO_BUTTON_LABEL);
 
-    appendTwilioVideoInfo(localization.FACILITY, twilioVideoInfoTemplate.el);
-  });
+    // 「参加者」行の下に行を挿入する
+    garoon.schedule.event.insertTableRow(localization.TWILIO_VIDEO_MEETING, twilioVideoInfoTemplate.el, 'ATTENDEES');
 
-  /**
-   * 予定の詳細画面の表に行を挿入する
-   * @param {string} textContent 文言
-   * @param {Object} newNode 文言挿入する Node
-   */
-  const appendTwilioVideoInfo = ((textContent, newNode) => {
-    let ths = document.querySelectorAll('.viewTable-grn th');
-    let targetNode, refNode;
-    ths = Array.prototype.slice.call(ths, 0);
-    targetNode = ths.filter((elm => {
-      return elm.textContent === textContent;
-    }));
-    if (targetNode == null || targetNode.length <= 0) {
-      return;
-    }
-    refNode = targetNode[0].parentNode;
-    refNode.parentNode.insertBefore(newNode, refNode.nextSibling);
+    // ボタンのクリックイベントを割り当て
+    const btn = document.querySelector('#twilio-video-btn');
+    btn.addEventListener('click', () => {
+      if (btn.innerHTML.indexOf('参加') !== -1) {
+        console.log(`Joining...`);
+        btn.innerHTML = `退出`;
+        joinConference();
+      } else {
+        console.log(`Leaving.`);
+        btn.innerHTML = `参加`;
+        leaveConference();
+      }
+    });
+
+    // プレビュー画面の表示
+    navigator.mediaDevices.getUserMedia({video: true, audio: true})
+      .then(stream => {
+        document.querySelector('#my-stream').srcObject = stream;
+        localStream = stream;
+      })
+      .catch(error => {
+        console.error(`mediaDevice.getUserMedia() error: ${error}`);
+      });
   });
 
   /**
@@ -338,7 +317,7 @@
     eventId = event.event.id || '';
 
     // 予定に紐づく施設情報
-    var facilities = event.event.facilities;
+    const facilities = event.event.facilities;
     if (facilities == null || facilities.length === 0) {
       return;
     }
