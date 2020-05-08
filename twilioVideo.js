@@ -317,7 +317,7 @@
     eventId = event.event.id || '';
 
     // 予定に紐づく施設情報
-    var facilities = event.event.facilities;
+    const facilities = event.event.facilities;
     if (facilities == null || facilities.length === 0) {
       return;
     }
