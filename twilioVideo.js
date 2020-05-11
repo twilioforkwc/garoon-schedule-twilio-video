@@ -21,19 +21,22 @@
     en: {
       TWILIO_VIDEO_MEETING: 'Twilio Video Meeting',
       TWILIO_VIDEO_CONNECTING: 'Video conferencing terminal',
-      TWILIO_VIDEO_BUTTON_LABEL: 'Join',
+      TWILIO_VIDEO_BUTTON_LABEL_JOIN: 'Join',
+      TWILIO_VIDEO_BUTTON_LABEL_LEAVE: 'Leave',
       FACILITY: 'Facilities'
     },
     ja: {
       TWILIO_VIDEO_MEETING: 'TwilioVideo会議室',
       TWILIO_VIDEO_CONNECTING: 'ビデオ会議端末の接続先',
-      TWILIO_VIDEO_BUTTON_LABEL: '参加',
+      TWILIO_VIDEO_BUTTON_LABEL_JOIN: '参加',
+      TWILIO_VIDEO_BUTTON_LABEL_LEAVE: '退出',
       FACILITY: '施設'
     },
     zh: {
       TWILIO_VIDEO_MEETING: 'Twilio Video Meeting',
       TWILIO_VIDEO_CONNECTING: 'Video conferencing terminal',
-      TWILIO_VIDEO_BUTTON_LABEL: 'Join',
+      TWILIO_VIDEO_BUTTON_LABEL_JOIN: 'Join',
+      TWILIO_VIDEO_BUTTON_LABEL_LEAVE: 'Leave',
       FACILITY: '设备'
     }
   };
@@ -172,7 +175,7 @@
     const twilioVideoInfoTemplate = createTwilioVideoInfoTemplate();
 
     // ボタンラベルの文言
-    twilioVideoInfoTemplate.setTextContent('twilio-video-btn', localization.TWILIO_VIDEO_BUTTON_LABEL);
+    twilioVideoInfoTemplate.setTextContent('twilio-video-btn', localization.TWILIO_VIDEO_BUTTON_LABEL_JOIN);
 
     // 「参加者」行の下に行を挿入する
     garoon.schedule.event.insertTableRow(localization.TWILIO_VIDEO_MEETING, twilioVideoInfoTemplate.el, 'ATTENDEES');
@@ -180,13 +183,13 @@
     // ボタンのクリックイベントを割り当て
     const btn = document.querySelector('#twilio-video-btn');
     btn.addEventListener('click', () => {
-      if (btn.innerHTML.indexOf('参加') !== -1) {
+      if (btn.innerHTML.indexOf(localization.TWILIO_VIDEO_BUTTON_LABEL_JOIN) !== -1) {
         console.log(`Joining...`);
-        btn.innerHTML = `退出`;
+        btn.innerHTML = localization.TWILIO_VIDEO_BUTTON_LABEL_LEAVE;
         joinConference();
       } else {
         console.log(`Leaving.`);
-        btn.innerHTML = `参加`;
+        btn.innerHTML = localization.TWILIO_VIDEO_BUTTON_LABEL_JOIN;
         leaveConference();
       }
     });
